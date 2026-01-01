@@ -33,14 +33,23 @@ const Analytics: React.FC = () => {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const [dashboardData, forecastData] = await Promise.all([
-        analyticsService.getDashboard(),
-        analyticsService.getForecast(),
-      ]);
+      
+      // Load dashboard data first (doesn't depend on external services)
+      const dashboardData = await analyticsService.getDashboard();
       setDashboard(dashboardData);
-      setForecast(forecastData);
 
-      // Load AI advice
+      // Load forecast separately so it doesn't break the whole page
+      try {
+        const forecastData = await analyticsService.getForecast();
+        // Check if forecast has actual data (not an error response)
+        if (forecastData && forecastData.forecasts) {
+          setForecast(forecastData);
+        }
+      } catch (err) {
+        console.error('Failed to load forecast (data service may be down)', err);
+      }
+
+      // Load AI advice separately (depends on AI agent service)
       try {
         const adviceData = await aiService.getAdvice({
           totalIncome: dashboardData.monthlyIncome,
@@ -49,7 +58,7 @@ const Analytics: React.FC = () => {
         });
         setAdvice(adviceData);
       } catch (err) {
-        console.error('Failed to load AI advice', err);
+        console.error('Failed to load AI advice (AI agent may be down)', err);
       }
     } catch (err) {
       console.error('Failed to load analytics', err);
@@ -160,31 +169,40 @@ const Analytics: React.FC = () => {
             <ArrowTrendingUpIcon className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Spending Forecast</h2>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={forecastChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis tickFormatter={(v) => `$${v}`} />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="predicted_spending"
-                name="Predicted Spending"
-                stroke="#059669"
-                fill="#d1fae5"
-                strokeWidth={2}
-              />
-              <Area
-                type="monotone"
-                dataKey="predicted_income"
-                name="Predicted Income"
-                stroke="#3b82f6"
-                fill="#dbeafe"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {forecastChartData && forecastChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={forecastChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis tickFormatter={(v) => `$${v}`} />
+                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                <Legend />
+                <Area
+                  type="monotone"
+                  dataKey="predicted_spending"
+                  name="Predicted Spending"
+                  stroke="#059669"
+                  fill="#d1fae5"
+                  strokeWidth={2}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="predicted_income"
+                  name="Predicted Income"
+                  stroke="#3b82f6"
+                  fill="#dbeafe"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+              <div className="text-center">
+                <p className="mb-1">No forecast data available</p>
+                <p className="text-sm">Add transactions or ensure the data service is running</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

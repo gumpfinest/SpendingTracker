@@ -6,6 +6,25 @@ import { Transaction, CreateTransactionRequest } from '../types';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatCurrency } from '../utils';
 
+const CATEGORIES = [
+  '',  // Auto-detect
+  'Food & Dining',
+  'Groceries',
+  'Transportation',
+  'Shopping',
+  'Entertainment',
+  'Bills & Utilities',
+  'Healthcare',
+  'Personal Care',
+  'Education',
+  'Travel',
+  'Subscriptions',
+  'Salary',
+  'Freelance',
+  'Investment',
+  'Other',
+];
+
 const transactionSchema = Yup.object().shape({
   description: Yup.string().required('Description is required'),
   amount: Yup.number().positive('Amount must be positive').required('Amount is required'),
@@ -81,13 +100,14 @@ const Transactions: React.FC = () => {
               description: '',
               amount: 0,
               type: 'EXPENSE' as 'INCOME' | 'EXPENSE',
+              category: '',
               notes: '',
             }}
             validationSchema={transactionSchema}
             onSubmit={handleSubmit}
           >
             {({ errors, touched, isSubmitting }) => (
-              <Form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Description
@@ -129,6 +149,22 @@ const Transactions: React.FC = () => {
                   >
                     <option value="EXPENSE">Expense</option>
                     <option value="INCOME">Income</option>
+                  </Field>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Category
+                  </label>
+                  <Field
+                    as="select"
+                    name="category"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Auto-detect</option>
+                    {CATEGORIES.filter(c => c !== '').map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
                   </Field>
                 </div>
 
