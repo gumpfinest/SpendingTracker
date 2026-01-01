@@ -1,5 +1,6 @@
 package com.smartspend.entity;
 
+import com.smartspend.security.EncryptionConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,6 +53,8 @@ public class Transaction {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Convert(converter = EncryptionConverter.class)
+    @Column(length = 1024)
     private String notes;
 
     public enum TransactionType {

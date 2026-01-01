@@ -9,6 +9,7 @@ import Transactions from './pages/Transactions';
 import Budgets from './pages/Budgets';
 import Analytics from './pages/Analytics';
 import AiAssistant from './pages/AiAssistant';
+import Settings from './pages/Settings';
 import Layout from './components/Layout';
 
 // Protected Route wrapper
@@ -71,6 +72,7 @@ function App() {
             <Route path="budgets" element={<Budgets />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="assistant" element={<AiAssistant />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
           
           {/* Catch all */}

@@ -3,6 +3,7 @@ package com.smartspend.repository;
 import com.smartspend.entity.Transaction;
 import com.smartspend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,8 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     
     List<Transaction> findByUserOrderByTransactionDateDesc(User user);
+    
+    List<Transaction> findByUserIdOrderByTransactionDateDesc(Long userId);
     
     List<Transaction> findByUserAndTransactionDateBetweenOrderByTransactionDateDesc(
             User user, LocalDateTime startDate, LocalDateTime endDate);
@@ -52,4 +55,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     
     List<Transaction> findByUserAndTransactionDateBetween(
             User user, LocalDateTime startDate, LocalDateTime endDate);
+    
+    long countByUserId(Long userId);
+    
+    @Modifying
+    @Query("DELETE FROM Transaction t WHERE t.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }

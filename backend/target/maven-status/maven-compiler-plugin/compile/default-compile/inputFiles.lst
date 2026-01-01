@@ -1,3 +1,4 @@
+C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\service\UserService.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\entity\User.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\repository\BudgetRepository.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\repository\UserRepository.java
@@ -5,6 +6,7 @@ C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\dto\AuthDTO.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\dto\TransactionDTO.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\service\DataServiceClient.java
+C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\controller\UserController.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\security\JwtAuthenticationFilter.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\config\WebClientConfig.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\controller\AiController.java
@@ -15,6 +17,7 @@ C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\service\AuthService.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\service\TransactionService.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\entity\Transaction.java
+C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\security\EncryptionConverter.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\SmartSpendApplication.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\controller\TransactionController.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\service\BudgetService.java
@@ -24,4 +27,5 @@ C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\service\AnalyticsService.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\entity\Budget.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\config\SecurityConfig.java
+C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\security\LoginAttemptService.java
 C:\Users\bruno\Documents\CodingProjects\SmartSpendApp\backend\src\main\java\com\smartspend\service\AiAgentClient.java

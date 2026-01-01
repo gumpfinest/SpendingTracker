@@ -3,6 +3,9 @@ package com.smartspend.repository;
 import com.smartspend.entity.Budget;
 import com.smartspend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +20,12 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
             User user, String category, Integer month, Integer year);
     
     List<Budget> findByUser(User user);
+    
+    List<Budget> findByUserId(Long userId);
+    
+    long countByUserId(Long userId);
+    
+    @Modifying
+    @Query("DELETE FROM Budget b WHERE b.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }

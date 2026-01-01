@@ -11,6 +11,7 @@ import {
   ArrowRightOnRectangleIcon,
   SunIcon,
   MoonIcon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Budgets', href: '/budgets', icon: CurrencyDollarIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   { name: 'AI Assistant', href: '/assistant', icon: ChatBubbleLeftRightIcon },
+  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];
 
 const Layout: React.FC = () => {

@@ -1,15 +1,18 @@
 com\smartspend\dto\AuthDTO$AuthResponse.class
 com\smartspend\entity\Transaction$TransactionType.class
 com\smartspend\dto\AnalyticsDTO$DashboardSummary.class
+com\smartspend\service\UserService.class
 com\smartspend\controller\AuthController.class
 com\smartspend\entity\Budget.class
 com\smartspend\dto\TransactionDTO$CreateRequest$CreateRequestBuilder.class
 com\smartspend\dto\AnalyticsDTO$MonthlyForecast$MonthlyForecastBuilder.class
 com\smartspend\dto\TransactionDTO$UpdateRequest.class
+com\smartspend\security\EncryptionConverter.class
 com\smartspend\service\BudgetService.class
 com\smartspend\controller\AiController.class
 com\smartspend\dto\BudgetDTO.class
 com\smartspend\controller\BudgetController.class
+com\smartspend\security\LoginAttemptService$LoginAttemptInfo.class
 com\smartspend\entity\Transaction.class
 com\smartspend\dto\AnalyticsDTO$SpendingForecast.class
 com\smartspend\dto\TransactionDTO$Response.class
@@ -33,6 +36,7 @@ com\smartspend\entity\User$UserBuilder.class
 com\smartspend\service\TransactionService.class
 com\smartspend\repository\TransactionRepository.class
 com\smartspend\entity\Budget$BudgetBuilder.class
+com\smartspend\controller\UserController.class
 com\smartspend\entity\Transaction$TransactionBuilder.class
 com\smartspend\dto\AnalyticsDTO$SpendingForecast$SpendingForecastBuilder.class
 com\smartspend\dto\BudgetDTO$UpdateRequest.class
@@ -44,6 +48,7 @@ com\smartspend\dto\AuthDTO$LoginRequest$LoginRequestBuilder.class
 com\smartspend\repository\BudgetRepository.class
 com\smartspend\dto\BudgetDTO$Response.class
 com\smartspend\service\AuthService.class
+com\smartspend\security\LoginAttemptService.class
 com\smartspend\dto\AuthDTO$AuthResponse$AuthResponseBuilder.class
 com\smartspend\entity\User$Role.class
 com\smartspend\dto\BudgetDTO$CreateRequest.class
