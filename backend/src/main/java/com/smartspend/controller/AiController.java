@@ -42,7 +42,7 @@ public class AiController {
         
         // Enrich context with user's recent transactions if not provided
         if (!context.containsKey("recentTransactions")) {
-            User user = userRepository.findByEmail(userDetails.getUsername())
+            User user = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             List<Transaction> recentTransactions = transactionRepository
                     .findByUserOrderByTransactionDateDesc(user)
@@ -69,7 +69,7 @@ public class AiController {
     @GetMapping("/patterns")
     public ResponseEntity<Map<String, Object>> getPatterns(
             @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
+        User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         LocalDateTime startDate = LocalDateTime.now().minusMonths(3);
