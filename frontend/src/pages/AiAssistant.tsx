@@ -63,12 +63,12 @@ const AiAssistant: React.FC = () => {
     <div className="h-[calc(100vh-8rem)] flex flex-col">
       {/* Header */}
       <div className="mb-4">
-        <h1 className="text-3xl font-bold text-gray-900">AI Financial Assistant</h1>
-        <p className="text-gray-600">Get personalized financial advice and insights</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">AI Financial Assistant</h1>
+        <p className="text-gray-600 dark:text-gray-400">Get personalized financial advice and insights</p>
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.map((message, index) => (
@@ -92,8 +92,8 @@ const AiAssistant: React.FC = () => {
                       <SparklesIcon className="h-5 w-5 text-white" />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                      <UserCircleIcon className="h-6 w-6 text-gray-500" />
+                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                      <UserCircleIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
                     </div>
                   )}
                 </div>
@@ -103,7 +103,7 @@ const AiAssistant: React.FC = () => {
                   className={`rounded-2xl px-4 py-3 ${
                     message.role === 'user'
                       ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
@@ -121,15 +121,15 @@ const AiAssistant: React.FC = () => {
                     <SparklesIcon className="h-5 w-5 text-white" />
                   </div>
                 </div>
-                <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3">
                   <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" />
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                       style={{ animationDelay: '0.2s' }}
                     />
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                       style={{ animationDelay: '0.4s' }}
                     />
                   </div>
@@ -143,14 +143,14 @@ const AiAssistant: React.FC = () => {
 
         {/* Quick Prompts */}
         {messages.length === 1 && (
-          <div className="px-6 py-3 border-t border-gray-100">
-            <p className="text-sm text-gray-500 mb-2">Suggested questions:</p>
+          <div className="px-6 py-3 border-t border-gray-100 dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Suggested questions:</p>
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => setInput(prompt)}
-                  className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors"
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   {prompt}
                 </button>
@@ -160,14 +160,14 @@ const AiAssistant: React.FC = () => {
         )}
 
         {/* Input Form */}
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-700">
           <form onSubmit={handleSubmit} className="flex space-x-4">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me anything about your finances..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               disabled={isLoading}
             />
             <button

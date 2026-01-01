@@ -6,8 +6,8 @@ interface AuthContextType {
   user: AuthResponse | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string, name: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -28,15 +28,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const response = await authService.login(email, password);
+  const login = async (username: string, password: string) => {
+    const response = await authService.login(username, password);
     authService.setToken(response.token);
     authService.setUser(response);
     setUser(response);
   };
 
-  const register = async (email: string, password: string, firstName: string, lastName: string) => {
-    const response = await authService.register(email, password, firstName, lastName);
+  const register = async (username: string, password: string, name: string) => {
+    const response = await authService.register(username, password, name);
     authService.setToken(response.token);
     authService.setUser(response);
     setUser(response);

@@ -98,8 +98,8 @@ const Budgets: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Budgets</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Budgets</h1>
+          <p className="text-gray-600 dark:text-gray-400">
             Set and track spending limits for {new Date().toLocaleString('default', { month: 'long' })} {currentYear}
           </p>
         </div>
@@ -114,8 +114,8 @@ const Budgets: React.FC = () => {
 
       {/* Add Budget Form */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">New Budget</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">New Budget</h2>
           <Formik
             initialValues={{ category: '', monthlyLimit: 0 }}
             validationSchema={budgetSchema}
@@ -124,13 +124,13 @@ const Budgets: React.FC = () => {
             {({ errors, touched, isSubmitting }) => (
               <Form className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Category
                   </label>
                   <Field
                     as="select"
                     name="category"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="">Select category</option>
                     {CATEGORIES.map((cat) => (
@@ -140,23 +140,23 @@ const Budgets: React.FC = () => {
                     ))}
                   </Field>
                   {errors.category && touched.category && (
-                    <p className="text-sm text-red-600 mt-1">{errors.category}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.category}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Monthly Limit
                   </label>
                   <Field
                     name="monthlyLimit"
                     type="number"
                     step="1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="500"
                   />
                   {errors.monthlyLimit && touched.monthlyLimit && (
-                    <p className="text-sm text-red-600 mt-1">{errors.monthlyLimit}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.monthlyLimit}</p>
                   )}
                 </div>
 
@@ -181,26 +181,26 @@ const Budgets: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
         </div>
       ) : budgets.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-12 border border-gray-100 text-center">
-          <p className="text-gray-500">No budgets set for this month. Create one to start tracking!</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 border border-gray-100 dark:border-gray-700 text-center">
+          <p className="text-gray-500 dark:text-gray-400">No budgets set for this month. Create one to start tracking!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {budgets.map((budget) => (
             <div
               key={budget.id}
-              className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700"
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{budget.category}</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{budget.category}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {formatCurrency(budget.currentSpent)} of {formatCurrency(budget.monthlyLimit)}
                   </p>
                 </div>
                 <button
                   onClick={() => handleDelete(budget.id)}
-                  className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                  className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
                   <TrashIcon className="h-5 w-5" />
                 </button>
@@ -208,7 +208,7 @@ const Budgets: React.FC = () => {
 
               {/* Progress Bar */}
               <div className="mb-3">
-                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className={`h-full ${getProgressColor(budget.percentageUsed)} transition-all`}
                     style={{ width: `${Math.min(budget.percentageUsed, 100)}%` }}
@@ -218,12 +218,12 @@ const Budgets: React.FC = () => {
 
               <div className="flex justify-between text-sm">
                 <span className={`font-medium ${
-                  budget.percentageUsed >= 100 ? 'text-red-600' : 'text-gray-600'
+                  budget.percentageUsed >= 100 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
                 }`}>
                   {budget.percentageUsed.toFixed(0)}% used
                 </span>
                 <span className={`font-medium ${
-                  budget.remaining >= 0 ? 'text-green-600' : 'text-red-600'
+                  budget.remaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`}>
                   {formatCurrency(Math.abs(budget.remaining))} {budget.remaining >= 0 ? 'left' : 'over'}
                 </span>

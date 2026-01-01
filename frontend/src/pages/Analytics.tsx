@@ -87,8 +87,8 @@ const Analytics: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-gray-600">Deep insights into your spending patterns</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+          <p className="text-gray-600 dark:text-gray-400">Deep insights into your spending patterns</p>
         </div>
         <div className="flex space-x-2">
           {(['week', 'month', 'year'] as const).map((period) => (
@@ -98,7 +98,7 @@ const Analytics: React.FC = () => {
               className={`px-4 py-2 rounded-lg capitalize ${
                 selectedPeriod === period
                   ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               {period}
@@ -109,31 +109,31 @@ const Analytics: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <p className="text-sm text-gray-500 mb-1">Total Income</p>
-          <p className="text-2xl font-bold text-green-600">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Income</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
             {formatCurrency(dashboard?.monthlyIncome || 0)}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <p className="text-sm text-gray-500 mb-1">Total Expenses</p>
-          <p className="text-2xl font-bold text-red-600">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Expenses</p>
+          <p className="text-2xl font-bold text-red-600 dark:text-red-400">
             {formatCurrency(dashboard?.monthlyExpenses || 0)}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <p className="text-sm text-gray-500 mb-1">Net Savings</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Net Savings</p>
           <p className={`text-2xl font-bold ${
             (dashboard?.monthlyIncome || 0) - (dashboard?.monthlyExpenses || 0) >= 0
-              ? 'text-green-600'
-              : 'text-red-600'
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-red-600 dark:text-red-400'
           }`}>
             {formatCurrency((dashboard?.monthlyIncome || 0) - (dashboard?.monthlyExpenses || 0))}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <p className="text-sm text-gray-500 mb-1">Savings Rate</p>
-          <p className="text-2xl font-bold text-primary-600">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Savings Rate</p>
+          <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
             {dashboard?.monthlyIncome
               ? (((dashboard.monthlyIncome - dashboard.monthlyExpenses) / dashboard.monthlyIncome) * 100).toFixed(1)
               : 0}%
@@ -144,10 +144,10 @@ const Analytics: React.FC = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Breakdown */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center mb-4">
-            <ChartBarIcon className="h-5 w-5 text-primary-600 mr-2" />
-            <h2 className="text-lg font-semibold text-gray-900">Spending by Category</h2>
+            <ChartBarIcon className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Spending by Category</h2>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={categoryData} layout="horizontal">
@@ -161,10 +161,10 @@ const Analytics: React.FC = () => {
         </div>
 
         {/* Spending Forecast */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center mb-4">
-            <ArrowTrendingUpIcon className="h-5 w-5 text-primary-600 mr-2" />
-            <h2 className="text-lg font-semibold text-gray-900">Spending Forecast</h2>
+            <ArrowTrendingUpIcon className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Spending Forecast</h2>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={forecastChartData}>
@@ -196,37 +196,37 @@ const Analytics: React.FC = () => {
 
       {/* AI Insights */}
       {advice && (
-        <div className="bg-gradient-to-r from-primary-50 to-emerald-50 rounded-xl shadow-sm p-6 border border-primary-100">
+        <div className="bg-gradient-to-r from-primary-50 to-emerald-50 dark:from-primary-900/30 dark:to-emerald-900/30 rounded-xl shadow-sm p-6 border border-primary-100 dark:border-primary-800">
           <div className="flex items-center mb-4">
-            <LightBulbIcon className="h-6 w-6 text-primary-600 mr-2" />
-            <h2 className="text-lg font-semibold text-gray-900">AI-Powered Insights</h2>
+            <LightBulbIcon className="h-6 w-6 text-primary-600 dark:text-primary-400 mr-2" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">AI-Powered Insights</h2>
           </div>
           <div className="space-y-4">
             <div>
-              <h3 className="font-medium text-gray-800 mb-2">Summary</h3>
-              <p className="text-gray-600">{advice.summary}</p>
+              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Summary</h3>
+              <p className="text-gray-600 dark:text-gray-400">{advice.summary}</p>
             </div>
             <div>
-              <h3 className="font-medium text-gray-800 mb-2">Recommendations</h3>
+              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Recommendations</h3>
               <ul className="space-y-2">
                 {advice.recommendations.map((rec, idx) => (
                   <li key={idx} className="flex items-start">
                     <span className="w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm mr-3 mt-0.5 flex-shrink-0">
                       {idx + 1}
                     </span>
-                    <span className="text-gray-600">{rec}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{rec}</span>
                   </li>
                 ))}
               </ul>
             </div>
             {advice.savingsOpportunities && advice.savingsOpportunities.length > 0 && (
               <div>
-                <h3 className="font-medium text-gray-800 mb-2">Savings Opportunities</h3>
+                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Savings Opportunities</h3>
                 <div className="flex flex-wrap gap-2">
                   {advice.savingsOpportunities.map((opp, idx) => (
                     <span
                       key={idx}
-                      className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"
+                      className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm"
                     >
                       {opp}
                     </span>
@@ -239,8 +239,8 @@ const Analytics: React.FC = () => {
       )}
 
       {/* Monthly Trend */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Income vs Expenses Trend</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Income vs Expenses Trend</h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={forecastChartData}>
             <CartesianGrid strokeDasharray="3 3" />
