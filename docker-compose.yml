@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: smartspend-db
+    environment:
+      POSTGRES_DB: smartspend
+      POSTGRES_USER: smartspend
+      POSTGRES_PASSWORD: smartspend123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartspend"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartspend-network
+
+  # Java Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartspend-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/smartspend
+      SPRING_DATASOURCE_USERNAME: smartspend
+      SPRING_DATASOURCE_PASSWORD: smartspend123
+      DATA_SERVICE_URL: http://data-service:8001
+      AI_AGENT_URL: http://ai-agent:8002
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      data-service:
+        condition: service_started
+      ai-agent:
+        condition: service_started
+    networks:
+      - smartspend-network
+
+  # Python Data Processing Service
+  data-service:
+    build:
+      context: ./data-service
+      dockerfile: Dockerfile
+    container_name: smartspend-data-service
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8001
+      DEBUG: "false"
+    ports:
+      - "8001:8001"
+    networks:
+      - smartspend-network
+
+  # Python AI Agent Service
+  ai-agent:
+    build:
+      context: ./ai-agent-service
+      dockerfile: Dockerfile
+    container_name: smartspend-ai-agent
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8002
+      DEBUG: "false"
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: gpt-4o-mini
+    ports:
+      - "8002:8002"
+    networks:
+      - smartspend-network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: http://localhost:8080/api
+    container_name: smartspend-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - smartspend-network
+
+networks:
+  smartspend-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
