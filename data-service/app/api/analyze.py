@@ -5,23 +5,18 @@ Provides detailed breakdown of spending patterns and insights.
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional, Dict
-from datetime import datetime
-import pandas as pd
-import numpy as np
+from typing import List, Dict
+
+from app.core.models import Transaction
+from app.core.utils import (
+    transactions_to_dataframe,
+    round_currency,
+    calculate_percentage,
+    get_empty_analysis_result
+)
 
 
 router = APIRouter()
-
-
-class Transaction(BaseModel):
-    """Transaction model for analysis input."""
-    id: int
-    description: str
-    amount: float
-    type: str  # INCOME or EXPENSE
-    category: Optional[str] = None
-    date: str  # ISO format date string
 
 
 class AnalyzeRequest(BaseModel):
@@ -74,37 +69,9 @@ def analyze_transactions(transactions: List[Transaction]) -> dict:
         Dictionary containing analysis results
     """
     if not transactions:
-        return {
-            "total_transactions": 0,
-            "total_income": 0,
-            "total_expenses": 0,
-            "net_balance": 0,
-            "category_breakdown": [],
-            "monthly_breakdown": [],
-            "top_spending_categories": [],
-            "unusual_transactions": [],
-            "insights": ["Add transactions to get spending insights."]
-        }
+        return get_empty_analysis_result()
     
-    # Convert to DataFrame
-    data = []
-    for t in transactions:
-        try:
-            date = datetime.fromisoformat(t.date.replace('Z', '+00:00'))
-        except:
-            date = datetime.now()
-        
-        data.append({
-            "id": t.id,
-            "description": t.description,
-            "amount": float(t.amount),
-            "type": t.type,
-            "category": t.category or "Uncategorized",
-            "date": date
-        })
-    
-    df = pd.DataFrame(data)
-    df['month'] = df['date'].dt.to_period('M')
+    df = transactions_to_dataframe(transactions)
     
     # Basic totals
     total_income = df[df['type'] == 'INCOME']['amount'].sum()
@@ -113,39 +80,65 @@ def analyze_transactions(transactions: List[Transaction]) -> dict:
     
     # Category breakdown
     expenses_df = df[df['type'] == 'EXPENSE']
-    category_stats = expenses_df.groupby('category').agg({
-        'amount': ['sum', 'count', 'mean']
-    }).reset_index()
-    
-    category_stats.columns = ['category', 'total_spent', 'transaction_count', 'average_transaction']
-    
-    # Calculate percentage
-    total_spent = category_stats['total_spent'].sum()
-    category_stats['percentage_of_total'] = (
-        category_stats['total_spent'] / total_spent * 100 if total_spent > 0 else 0
-    )
-    
-    # Simple trend calculation (would need more data for real trend)
-    category_stats['trend'] = 'stable'
-    
-    category_breakdown = []
-    for _, row in category_stats.iterrows():
-        category_breakdown.append({
-            "category": row['category'],
-            "total_spent": round(float(row['total_spent']), 2),
-            "transaction_count": int(row['transaction_count']),
-            "average_transaction": round(float(row['average_transaction']), 2),
-            "percentage_of_total": round(float(row['percentage_of_total']), 2),
-            "trend": row['trend']
-        })
-    
-    # Sort by total spent
-    category_breakdown.sort(key=lambda x: x['total_spent'], reverse=True)
+    category_breakdown = _calculate_category_breakdown(expenses_df)
     
     # Monthly breakdown
+    monthly_breakdown = _calculate_monthly_breakdown(df, expenses_df)
+    
+    # Top spending categories
+    top_categories = [cb['category'] for cb in category_breakdown[:5]]
+    
+    # Detect unusual transactions
+    unusual_transactions = _detect_unusual_transactions(expenses_df)
+    
+    # Generate insights
+    insights = _generate_insights(
+        category_breakdown, total_income, net_balance,
+        monthly_breakdown, unusual_transactions
+    )
+    
+    return {
+        "total_transactions": len(transactions),
+        "total_income": round_currency(total_income),
+        "total_expenses": round_currency(total_expenses),
+        "net_balance": round_currency(net_balance),
+        "category_breakdown": category_breakdown,
+        "monthly_breakdown": monthly_breakdown,
+        "top_spending_categories": top_categories,
+        "unusual_transactions": unusual_transactions,
+        "insights": insights
+    }
+
+
+def _calculate_category_breakdown(expenses_df) -> List[dict]:
+    """Calculate spending breakdown by category."""
+    if expenses_df.empty:
+        return []
+    
+    stats = expenses_df.groupby('category').agg({
+        'amount': ['sum', 'count', 'mean']
+    }).reset_index()
+    stats.columns = ['category', 'total_spent', 'transaction_count', 'average_transaction']
+    
+    total_spent = stats['total_spent'].sum()
+    
+    breakdown = [{
+        "category": row['category'],
+        "total_spent": round_currency(row['total_spent']),
+        "transaction_count": int(row['transaction_count']),
+        "average_transaction": round_currency(row['average_transaction']),
+        "percentage_of_total": calculate_percentage(row['total_spent'], total_spent),
+        "trend": "stable"
+    } for _, row in stats.iterrows()]
+    
+    return sorted(breakdown, key=lambda x: x['total_spent'], reverse=True)
+
+
+def _calculate_monthly_breakdown(df, expenses_df) -> List[dict]:
+    """Calculate monthly spending and income breakdown."""
     monthly_data = df.groupby(['month', 'type'])['amount'].sum().unstack(fill_value=0)
     
-    monthly_breakdown = []
+    breakdown = []
     for month in monthly_data.index:
         month_expenses = expenses_df[expenses_df['month'] == month]
         top_cat = "N/A"
@@ -155,41 +148,46 @@ def analyze_transactions(transactions: List[Transaction]) -> dict:
         income = float(monthly_data.loc[month, 'INCOME']) if 'INCOME' in monthly_data.columns else 0
         spending = float(monthly_data.loc[month, 'EXPENSE']) if 'EXPENSE' in monthly_data.columns else 0
         
-        monthly_breakdown.append({
+        breakdown.append({
             "month": str(month),
-            "total_spending": round(spending, 2),
-            "total_income": round(income, 2),
-            "net_savings": round(income - spending, 2),
+            "total_spending": round_currency(spending),
+            "total_income": round_currency(income),
+            "net_savings": round_currency(income - spending),
             "top_category": top_cat
         })
     
-    # Top spending categories
-    top_categories = [cb['category'] for cb in category_breakdown[:5]]
+    return breakdown
+
+
+def _detect_unusual_transactions(expenses_df) -> List[dict]:
+    """Detect unusually large transactions using statistical analysis."""
+    if len(expenses_df) <= 5:
+        return []
     
-    # Detect unusual transactions (simple outlier detection)
-    unusual_transactions = []
-    if len(expenses_df) > 5:
-        mean_expense = expenses_df['amount'].mean()
-        std_expense = expenses_df['amount'].std()
-        threshold = mean_expense + 2 * std_expense
-        
-        outliers = expenses_df[expenses_df['amount'] > threshold]
-        for _, row in outliers.iterrows():
-            unusual_transactions.append({
-                "id": row['id'],
-                "description": row['description'],
-                "amount": round(float(row['amount']), 2),
-                "reason": f"Amount is {round(row['amount']/mean_expense, 1)}x your average expense"
-            })
+    mean_expense = expenses_df['amount'].mean()
+    std_expense = expenses_df['amount'].std()
+    threshold = mean_expense + 2 * std_expense
     
-    # Generate insights
+    outliers = expenses_df[expenses_df['amount'] > threshold]
+    
+    return [{
+        "id": row['id'],
+        "description": row['description'],
+        "amount": round_currency(row['amount']),
+        "reason": f"Amount is {round(row['amount']/mean_expense, 1)}x your average expense"
+    } for _, row in outliers.iterrows()]
+
+
+def _generate_insights(category_breakdown, total_income, net_balance,
+                       monthly_breakdown, unusual_transactions) -> List[str]:
+    """Generate actionable insights from the analysis."""
     insights = []
     
     if category_breakdown:
-        top_category = category_breakdown[0]
+        top = category_breakdown[0]
         insights.append(
-            f"Your highest spending category is {top_category['category']}, "
-            f"accounting for {top_category['percentage_of_total']:.1f}% of expenses."
+            f"Your highest spending category is {top['category']}, "
+            f"accounting for {top['percentage_of_total']:.1f}% of expenses."
         )
     
     if total_income > 0:
@@ -202,27 +200,17 @@ def analyze_transactions(transactions: List[Transaction]) -> dict:
             insights.append(f"Great job! You're saving {savings_rate:.1f}% of your income.")
     
     if len(monthly_breakdown) >= 2:
-        recent_spending = monthly_breakdown[-1]['total_spending']
-        prev_spending = monthly_breakdown[-2]['total_spending']
-        if recent_spending > prev_spending * 1.2:
+        recent = monthly_breakdown[-1]['total_spending']
+        prev = monthly_breakdown[-2]['total_spending']
+        if recent > prev * 1.2:
             insights.append("📈 Your spending increased by more than 20% compared to last month.")
-        elif recent_spending < prev_spending * 0.8:
+        elif recent < prev * 0.8:
             insights.append("📉 Great! Your spending decreased by more than 20% compared to last month.")
     
     if unusual_transactions:
         insights.append(f"🔍 We detected {len(unusual_transactions)} unusually large transaction(s).")
     
-    return {
-        "total_transactions": len(transactions),
-        "total_income": round(float(total_income), 2),
-        "total_expenses": round(float(total_expenses), 2),
-        "net_balance": round(float(net_balance), 2),
-        "category_breakdown": category_breakdown,
-        "monthly_breakdown": monthly_breakdown,
-        "top_spending_categories": top_categories,
-        "unusual_transactions": unusual_transactions,
-        "insights": insights
-    }
+    return insights
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
@@ -250,39 +238,23 @@ async def analyze_spending(request: AnalyzeRequest):
 
 @router.post("/analyze/category/{category}")
 async def analyze_category(category: str, request: AnalyzeRequest):
-    """
-    Get detailed analysis for a specific spending category.
-    """
+    """Get detailed analysis for a specific spending category."""
     transactions = [t for t in request.transactions if t.category == category]
     
     if not transactions:
         raise HTTPException(status_code=404, detail=f"No transactions found for category: {category}")
     
-    # Convert to DataFrame
-    data = []
-    for t in transactions:
-        try:
-            date = datetime.fromisoformat(t.date.replace('Z', '+00:00'))
-        except:
-            date = datetime.now()
-        
-        data.append({
-            "description": t.description,
-            "amount": float(t.amount),
-            "date": date
-        })
-    
-    df = pd.DataFrame(data)
+    df = transactions_to_dataframe(transactions)
     
     return {
         "category": category,
-        "total_spent": round(float(df['amount'].sum()), 2),
+        "total_spent": round_currency(df['amount'].sum()),
         "transaction_count": len(df),
-        "average_transaction": round(float(df['amount'].mean()), 2),
-        "min_transaction": round(float(df['amount'].min()), 2),
-        "max_transaction": round(float(df['amount'].max()), 2),
+        "average_transaction": round_currency(df['amount'].mean()),
+        "min_transaction": round_currency(df['amount'].min()),
+        "max_transaction": round_currency(df['amount'].max()),
         "recent_transactions": [
-            {"description": row['description'], "amount": round(row['amount'], 2), "date": str(row['date'])}
+            {"description": row['description'], "amount": round_currency(row['amount']), "date": str(row['date'])}
             for _, row in df.nlargest(5, 'date').iterrows()
         ]
     }

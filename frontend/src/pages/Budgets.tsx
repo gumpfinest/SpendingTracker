@@ -4,6 +4,8 @@ import * as Yup from 'yup';
 import { budgetService } from '../services/financeService';
 import { Budget, CreateBudgetRequest } from '../types';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { formatCurrency } from '../utils';
+import { LoadingSpinner, inputClasses } from '../components/ui';
 
 const CATEGORIES = [
   'Food & Dining',
@@ -24,14 +26,6 @@ const budgetSchema = Yup.object().shape({
   category: Yup.string().required('Category is required'),
   monthlyLimit: Yup.number().positive('Limit must be positive').required('Limit is required'),
 });
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-  }).format(value);
-};
 
 const Budgets: React.FC = () => {
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -178,7 +172,7 @@ const Budgets: React.FC = () => {
       {/* Budgets Grid */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <LoadingSpinner size="lg" />
         </div>
       ) : budgets.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 border border-gray-100 dark:border-gray-700 text-center">

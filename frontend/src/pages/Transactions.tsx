@@ -3,21 +3,14 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { transactionService } from '../services/financeService';
 import { Transaction, CreateTransactionRequest } from '../types';
-import { format } from 'date-fns';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { formatCurrency } from '../utils';
 
 const transactionSchema = Yup.object().shape({
   description: Yup.string().required('Description is required'),
   amount: Yup.number().positive('Amount must be positive').required('Amount is required'),
   type: Yup.string().oneOf(['INCOME', 'EXPENSE']).required('Type is required'),
 });
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(value);
-};
 
 const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -187,7 +180,7 @@ const Transactions: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                    {format(new Date(transaction.transactionDate), 'MMM d, yyyy')}
+                    {new Date(transaction.transactionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className={`px-6 py-4 text-right font-semibold ${
                     transaction.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'

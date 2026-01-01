@@ -16,14 +16,8 @@ import {
   Area,
 } from 'recharts';
 import { LightBulbIcon, ArrowTrendingUpIcon, ChartBarIcon } from '@heroicons/react/24/outline';
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-  }).format(value);
-};
+import { formatCurrency } from '../utils';
+import { LoadingSpinner } from '../components/ui';
 
 const Analytics: React.FC = () => {
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
@@ -67,7 +61,7 @@ const Analytics: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

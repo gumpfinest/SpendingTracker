@@ -6,26 +6,9 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
-  Legend,
 } from 'recharts';
-import { format } from 'date-fns';
-
-const COLORS = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-};
+import { formatCurrency, CHART_COLORS } from '../utils';
 
 const Dashboard: React.FC = () => {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -128,7 +111,7 @@ const Dashboard: React.FC = () => {
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
                   {pieChartData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => formatCurrency(value)} />
@@ -154,7 +137,7 @@ const Dashboard: React.FC = () => {
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">{transaction.description}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {transaction.category || 'Uncategorized'} • {format(new Date(transaction.transactionDate), 'MMM d')}
+                      {transaction.category || 'Uncategorized'} • {new Date(transaction.transactionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </p>
                   </div>
                   <p className={`font-semibold ${
