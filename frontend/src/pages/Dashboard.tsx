@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { analyticsService } from '../services/financeService';
+import { analyticsService, transactionService } from '../services/financeService';
 import { DashboardSummary } from '../types';
 import {
   PieChart,
@@ -9,11 +9,28 @@ import {
   Tooltip,
 } from 'recharts';
 import { formatCurrency, CHART_COLORS } from '../utils';
+import { PlusIcon, XMarkIcon, BanknotesIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import { LoadingSpinner } from '../components/ui';
+
+const incomeSchema = Yup.object().shape({
+  description: Yup.string().required('Description is required'),
+  amount: Yup.number().positive('Amount must be positive').required('Amount is required'),
+});
+
+const expenseSchema = Yup.object().shape({
+  description: Yup.string().required('Description is required'),
+  amount: Yup.number().positive('Amount must be positive').required('Amount is required'),
+});
 
 const Dashboard: React.FC = () => {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showIncomeModal, setShowIncomeModal] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -31,10 +48,48 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleAddIncome = async (values: { description: string; amount: number }, { resetForm }: any) => {
+    try {
+      setSubmitting(true);
+      await transactionService.create({
+        description: values.description,
+        amount: values.amount,
+        type: 'INCOME',
+        transactionDate: new Date().toISOString(),
+      });
+      resetForm();
+      setShowIncomeModal(false);
+      await loadDashboard();
+    } catch (err) {
+      console.error('Failed to add income', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAddExpense = async (values: { description: string; amount: number }, { resetForm }: any) => {
+    try {
+      setSubmitting(true);
+      await transactionService.create({
+        description: values.description,
+        amount: values.amount,
+        type: 'EXPENSE',
+        transactionDate: new Date().toISOString(),
+      });
+      resetForm();
+      setShowExpenseModal(false);
+      await loadDashboard();
+    } catch (err) {
+      console.error('Failed to add expense', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -57,9 +112,27 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's your financial overview.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's your financial overview.</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowIncomeModal(true)}
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <ArrowTrendingUpIcon className="h-5 w-5 mr-2" />
+            Add Income
+          </button>
+          <button
+            onClick={() => setShowExpenseModal(true)}
+            className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <BanknotesIcon className="h-5 w-5 mr-2" />
+            Add Expense
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -156,6 +229,178 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Income Modal */}
+      {showIncomeModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <ArrowTrendingUpIcon className="h-5 w-5 mr-2 text-green-600" />
+                Add Income
+              </h2>
+              <button
+                onClick={() => setShowIncomeModal(false)}
+                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <Formik
+              initialValues={{ description: '', amount: 0 }}
+              validationSchema={incomeSchema}
+              onSubmit={handleAddIncome}
+            >
+              {({ errors, touched, isSubmitting }) => (
+                <Form className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Description
+                    </label>
+                    <Field
+                      name="description"
+                      type="text"
+                      placeholder="e.g., Salary, Freelance payment"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    {errors.description && touched.description && (
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.description}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Amount
+                    </label>
+                    <Field
+                      name="amount"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    {errors.amount && touched.amount && (
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.amount}</p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowIncomeModal(false)}
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || submitting}
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                    >
+                      {isSubmitting || submitting ? (
+                        <span className="flex items-center justify-center">
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Adding...</span>
+                        </span>
+                      ) : (
+                        'Add Income'
+                      )}
+                    </button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </div>
+        </div>
+      )}
+
+      {/* Add Expense Modal */}
+      {showExpenseModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <BanknotesIcon className="h-5 w-5 mr-2 text-red-600" />
+                Add Expense
+              </h2>
+              <button
+                onClick={() => setShowExpenseModal(false)}
+                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            <Formik
+              initialValues={{ description: '', amount: 0 }}
+              validationSchema={expenseSchema}
+              onSubmit={handleAddExpense}
+            >
+              {({ errors, touched, isSubmitting }) => (
+                <Form className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Description
+                    </label>
+                    <Field
+                      name="description"
+                      type="text"
+                      placeholder="e.g., Groceries, Uber ride"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    {errors.description && touched.description && (
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.description}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Amount
+                    </label>
+                    <Field
+                      name="amount"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    {errors.amount && touched.amount && (
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.amount}</p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowExpenseModal(false)}
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || submitting}
+                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    >
+                      {isSubmitting || submitting ? (
+                        <span className="flex items-center justify-center">
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Adding...</span>
+                        </span>
+                      ) : (
+                        'Add Expense'
+                      )}
+                    </button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
