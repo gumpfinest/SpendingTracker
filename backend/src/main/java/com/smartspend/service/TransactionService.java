@@ -40,8 +40,14 @@ public class TransactionService {
 
         transaction = transactionRepository.save(transaction);
 
-        // Call data service to categorize the transaction
-        String category = dataServiceClient.categorizeTransaction(request.getDescription());
+        // Use provided category or auto-categorize
+        String category;
+        if (request.getCategory() != null && !request.getCategory().isBlank()) {
+            category = request.getCategory();
+        } else {
+            category = dataServiceClient.categorizeTransaction(request.getDescription());
+        }
+        
         transaction.setCategory(category);
         transaction.setStatus(Transaction.TransactionStatus.CATEGORIZED);
         transaction = transactionRepository.save(transaction);

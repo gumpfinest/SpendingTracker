@@ -29,6 +29,7 @@ public class TransactionDTO {
         @NotNull(message = "Transaction type is required")
         private Transaction.TransactionType type;
 
+        private String category;
         private LocalDateTime transactionDate;
         private String notes;
     }

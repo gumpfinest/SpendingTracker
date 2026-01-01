@@ -30,6 +30,7 @@ export interface CreateTransactionRequest {
   description: string;
   amount: number;
   type: 'INCOME' | 'EXPENSE';
+  category?: string;
   transactionDate?: string;
   notes?: string;
 }
